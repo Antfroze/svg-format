@@ -1,4 +1,3 @@
-#include <iostream>
 #include "svg-format.hpp"
 
 using namespace svg_fmt;

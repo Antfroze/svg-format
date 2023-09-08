@@ -60,6 +60,9 @@ struct Color : public Formattable {
 };
 
 struct Stroke : public Formattable {
+    inline Stroke(float width = 0, const Color& color = Color::Black())
+        : width(width), color(color) {}
+
     inline std::string Format() const override {
         std::string str =
             width != 0 ? "stroke: %s; stroke-width: %.3g" : "stroke: none";
@@ -75,13 +78,11 @@ struct Stroke : public Formattable {
         return str;
     }
 
-    Color color = Color::Black();
-    float width = 0;
+    float width;
+    Color color;
 };
 
 struct Style : public Formattable {
-    inline Style() : fill(Color::White()) {}
-
     inline std::string Format() const override {
         char* buffer;
 
@@ -91,9 +92,9 @@ struct Style : public Formattable {
         return buffer;
     }
 
-    Color fill;
+    Color fill = Color::White();
     Stroke stroke;
-    float opacity = 0;
+    float opacity = 1;
 };
 
 namespace SVG {
