@@ -9,7 +9,12 @@ struct Color {
     inline std::string Format() const {
         char* buffer;
 
-        asprintf(&buffer, "rgba(%.2f, %.2f, %.2f, %.2f)", r, g, b, a);
+        if (a != 1) {
+            asprintf(&buffer, "rgba(%.3g, %.3g, %.3g, %.3g)", r, g, b, a);
+
+        } else {
+            asprintf(&buffer, "rgb(%.3g, %.3g, %.3g)", r, g, b);
+        }
 
         return buffer;
     }
@@ -44,13 +49,13 @@ struct Color {
 
 struct Stroke {
     inline std::string Format() const {
-        const char* str =
-            width != 0 ? "stroke: %s; stroke-width: %.2f" : "stroke: none";
+        std::string str =
+            width != 0 ? "stroke: %s; stroke-width: %.3g" : "stroke: none";
 
         if (width != 0) {
             char* buffer;
 
-            asprintf(&buffer, str, color.Format().c_str(), width);
+            asprintf(&buffer, str.c_str(), color.Format().c_str(), width);
 
             return buffer;
         }
@@ -68,7 +73,7 @@ struct Style {
     inline std::string Format() const {
         char* buffer;
 
-        asprintf(&buffer, "%s; fill: %s; fill-opacity: %.2f",
+        asprintf(&buffer, "%s; fill: %s; fill-opacity: %.3g",
                  stroke.Format().c_str(), fill.Format().c_str(), opacity);
 
         return buffer;
@@ -85,7 +90,7 @@ inline std::string Begin(float w, float h) {
 
     asprintf(
         &buffer,
-        R"(<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 %.2f %.2f">)",
+        R"(<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 %.3g %.3g">)",
         w, h);
 
     return buffer;
@@ -140,7 +145,7 @@ class Rectangle {
 
         asprintf(
             &buffer,
-            R"(    <rect x="%.2f" y="%.2f" width="%.2f" height="%.2f" ry="%.2f" style="%s" />)",
+            R"(    <rect x="%.3g" y="%.3g" width="%.3g" height="%.3g" ry="%.3g" style="%s" />)",
             x, y, width, height, borderRadius, style.Format().c_str());
 
         return buffer;
@@ -186,22 +191,22 @@ class Text {
 
         switch (align) {
             case LEFT: {
-                alignment = "text-anchor: start; text-align: left;";
+                alignment = "text-anchor: start; text-align: left";
                 break;
             }
             case RIGHT: {
-                alignment = "text-anchor: end; text-align: right;";
+                alignment = "text-anchor: end; text-align: right";
                 break;
             }
             case CENTER: {
-                alignment = "text-anchor: middle; text-align: center;";
+                alignment = "text-anchor: middle; text-align: center";
                 break;
             }
         }
 
         asprintf(
             &buffer,
-            R"(    <text x="%.2f" y="%.2f" style="font-size: %.2fpx; fill: %s; %s">%s</text>)",
+            R"(    <text x="%.3g" y="%.3g" style="font-size: %.3gpx; fill: %s; %s">%s</text>)",
             x, y, size, color.Format().c_str(), alignment.c_str(),
             content.c_str());
 
@@ -244,7 +249,7 @@ class LineSegment {
 
         asprintf(
             &buffer,
-            R"(    <path d="M %.2f %.2f L %.2f %.2f" style="stroke: %s; stroke-width: %.2f"/>")",
+            R"(    <path d="M %.3g %.3g L %.3g %.3g" style="stroke: %s; stroke-width: %.3g" />")",
             x1, x2, y1, y2, color.Format().c_str(), width);
 
         return buffer;
