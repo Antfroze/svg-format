@@ -136,12 +136,12 @@ class Rectangle {
     inline Rectangle& Inflate(float width, float height) {
         x -= width;
         y -= height;
-        this->width += 2.0 * width;
-        this->width += 2.0 * height;
+        this->width += width * 2;
+        this->width += height * 2;
         return *this;
     }
 
-    inline std::string Format() {
+    inline std::string Format() const {
         char* buffer;
 
         asprintf(
@@ -186,7 +186,7 @@ class Text {
         return *this;
     }
 
-    inline std::string Format() {
+    inline std::string Format() const {
         char* buffer;
         std::string alignment;
 
@@ -245,7 +245,7 @@ class LineSegment {
         return *this;
     }
 
-    inline std::string Format() {
+    inline std::string Format() const {
         char* buffer;
 
         asprintf(
@@ -287,7 +287,7 @@ class Polygon {
         return *this;
     }
 
-    inline std::string Format() {
+    inline std::string Format() const {
         char* buffer = nullptr;
 
         asprintf(&buffer, R"(    <path d=")");
@@ -327,4 +327,52 @@ class Polygon {
 struct Triangle : public Polygon {
     inline Triangle(float x1, float x2, float x3, float y1, float y2, float y3)
         : Polygon({{x1, y1}, {x2, y2}, {x3, y3}}) {}
+};
+
+class Circle {
+   public:
+    inline Circle(float x, float y, float radius)
+        : x(x), y(y), radius(radius) {}
+
+    inline Circle& WithFill(const Color& fill) {
+        this->style.fill = fill;
+        return *this;
+    }
+
+    inline Circle& WithStroke(const Stroke& stroke) {
+        this->style.stroke = stroke;
+        return *this;
+    }
+
+    inline Circle& WithOpacity(float opacity) {
+        this->style.opacity = opacity;
+        return *this;
+    }
+
+    inline Circle& Offset(float x, float y) {
+        this->x += x;
+        this->y += y;
+        return *this;
+    }
+
+    inline Circle& Inflate(float radius) {
+        x -= radius;
+        y -= radius;
+        this->radius += radius * 2;
+        return *this;
+    }
+
+    inline std::string Format() const {
+        char* buffer;
+
+        asprintf(&buffer,
+                 R"(    <circle cx="%.3g" cy="%.3g" r="%.3g" style="%s" />)", x,
+                 y, radius, style.Format().c_str());
+
+        return buffer;
+    }
+
+   private:
+    float x, y, radius;
+    Style style;
 };
