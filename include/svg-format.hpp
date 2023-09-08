@@ -1,14 +1,24 @@
 #pragma once
 
+#include <iostream>
 #include <string>
 #include <vector>
 
 namespace svg_fmt {
-struct Color {
+struct Formattable {
+    virtual std::string Format() const = 0;
+
+    friend std::ostream& operator<<(std::ostream& os, const Formattable& o) {
+        os << o.Format();
+        return os;
+    }
+};
+
+struct Color : public Formattable {
     inline Color(float r, float g, float b, float a = 1)
         : r(r), g(g), b(b), a(a) {}
 
-    inline std::string Format() const {
+    inline std::string Format() const override {
         char* buffer;
 
         if (a != 1) {
@@ -49,8 +59,8 @@ struct Color {
     float r, g, b, a;
 };
 
-struct Stroke {
-    inline std::string Format() const {
+struct Stroke : public Formattable {
+    inline std::string Format() const override {
         std::string str =
             width != 0 ? "stroke: %s; stroke-width: %.3g" : "stroke: none";
 
@@ -69,10 +79,10 @@ struct Stroke {
     float width = 0;
 };
 
-struct Style {
+struct Style : public Formattable {
     inline Style() : fill(Color::White()) {}
 
-    inline std::string Format() const {
+    inline std::string Format() const override {
         char* buffer;
 
         asprintf(&buffer, "%s; fill: %s; fill-opacity: %.3g",
@@ -103,7 +113,7 @@ inline std::string End() {
 }
 };  // namespace SVG
 
-class Rectangle {
+class Rectangle : public Formattable {
    public:
     inline Rectangle(float x, float y, float width, float height)
         : x(x), y(y), width(width), height(height) {}
@@ -142,7 +152,7 @@ class Rectangle {
         return *this;
     }
 
-    inline std::string Format() const {
+    inline std::string Format() const override {
         char* buffer;
 
         asprintf(
@@ -159,7 +169,7 @@ class Rectangle {
     float borderRadius = 0;
 };
 
-class Text {
+class Text : public Formattable {
    public:
     enum Align { LEFT, RIGHT, CENTER };
 
@@ -187,7 +197,7 @@ class Text {
         return *this;
     }
 
-    inline std::string Format() const {
+    inline std::string Format() const override {
         char* buffer;
         std::string alignment;
 
@@ -223,7 +233,7 @@ class Text {
     Align align = Align::LEFT;
 };
 
-class LineSegment {
+class LineSegment : public Formattable {
    public:
     inline LineSegment(float x1, float x2, float y1, float y2)
         : x1(x1), x2(x2), y1(y1), y2(y2) {}
@@ -246,7 +256,7 @@ class LineSegment {
         return *this;
     }
 
-    inline std::string Format() const {
+    inline std::string Format() const override {
         char* buffer;
 
         asprintf(
@@ -263,7 +273,7 @@ class LineSegment {
     Color color = Color::Black();
 };
 
-class Polygon {
+class Polygon : public Formattable {
    public:
     inline Polygon(const std::vector<std::array<float, 2>>& points)
         : points(points) {}
@@ -288,7 +298,7 @@ class Polygon {
         return *this;
     }
 
-    inline std::string Format() const {
+    inline std::string Format() const override {
         char* buffer = nullptr;
 
         asprintf(&buffer, R"(    <path d=")");
@@ -330,7 +340,7 @@ struct Triangle : public Polygon {
         : Polygon({{x1, y1}, {x2, y2}, {x3, y3}}) {}
 };
 
-class Circle {
+class Circle : public Formattable {
    public:
     inline Circle(float x, float y, float radius)
         : x(x), y(y), radius(radius) {}
@@ -363,7 +373,7 @@ class Circle {
         return *this;
     }
 
-    inline std::string Format() const {
+    inline std::string Format() const override {
         char* buffer;
 
         asprintf(&buffer,
