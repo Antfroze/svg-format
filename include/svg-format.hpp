@@ -215,3 +215,43 @@ class Text {
     Color color = Color::Black();
     Align align = Align::LEFT;
 };
+
+class LineSegment {
+   public:
+    inline LineSegment(float x1, float x2, float y1, float y2)
+        : x1(x1), x2(x2), y1(y1), y2(y2) {}
+
+    inline LineSegment& WithColor(const Color& color) {
+        this->color = color;
+        return *this;
+    }
+
+    inline LineSegment& WithWidth(float width) {
+        this->width = width;
+        return *this;
+    }
+
+    inline LineSegment& Offset(float x, float y) {
+        this->x1 += x;
+        this->x2 += x;
+        this->y1 += y;
+        this->y2 += y;
+        return *this;
+    }
+
+    inline std::string Format() {
+        char* buffer;
+
+        asprintf(
+            &buffer,
+            R"(    <path d="M %.2f %.2f L %.2f %.2f" style="stroke: %s; stroke-width: %.2f"/>")",
+            x1, x2, y1, y2, color.Format().c_str(), width);
+
+        return buffer;
+    }
+
+   private:
+    float x1, x2, y1, y2;
+    float width = 1;
+    Color color = Color::Black();
+};
