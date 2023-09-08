@@ -3,6 +3,7 @@
 #include <string>
 #include <vector>
 
+namespace svg_fmt {
 struct Color {
     inline Color(float r, float g, float b, float a = 1)
         : r(r), g(g), b(b), a(a) {}
@@ -376,3 +377,6 @@ class Circle {
     float x, y, radius;
     Style style;
 };
+
+class Path {};
+}  // namespace svg_fmt

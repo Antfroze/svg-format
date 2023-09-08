@@ -1,6 +1,8 @@
 #include <iostream>
 #include "svg-format.hpp"
 
+using namespace svg_fmt;
+
 int main() {
     std::cout << SVG::Begin(200, 200) << std::endl;
     std::cout << Rectangle(0, 0, 10, 10).WithFill({1, 1, 1}).Format()
