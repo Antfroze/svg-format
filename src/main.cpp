@@ -7,6 +7,7 @@ int main() {
               << std::endl;
     std::cout << Text(0, 0, "clock").Format() << std::endl;
     std::cout << LineSegment(0, 0, 10, 10).Format() << std::endl;
+    std::cout << Triangle(0, 10, 10, 0, 0, 10).Open().Format() << std::endl;
     std::cout << SVG::End() << std::endl;
 
     return 0;

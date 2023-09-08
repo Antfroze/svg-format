@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <vector>
 
 struct Color {
     inline Color(float r, float g, float b, float a = 1)
@@ -81,7 +82,7 @@ struct Style {
 
     Color fill;
     Stroke stroke;
-    float opacity;
+    float opacity = 0;
 };
 
 namespace SVG {
@@ -259,4 +260,71 @@ class LineSegment {
     float x1, x2, y1, y2;
     float width = 1;
     Color color = Color::Black();
+};
+
+class Polygon {
+   public:
+    inline Polygon(const std::vector<std::array<float, 2>>& points)
+        : points(points) {}
+
+    inline Polygon& Open() {
+        closed = false;
+        return *this;
+    }
+
+    inline Polygon& WithFill(const Color& color) {
+        this->style.fill = color;
+        return *this;
+    }
+
+    inline Polygon& WithStroke(const Stroke& stroke) {
+        this->style.stroke = stroke;
+        return *this;
+    }
+
+    inline Polygon& WithOpacity(float opacity) {
+        this->style.opacity = opacity;
+        return *this;
+    }
+
+    inline std::string Format() {
+        char* buffer = nullptr;
+
+        asprintf(&buffer, R"(    <path d=")");
+
+        if (!points.empty()) {
+            strcat(buffer, "M ");
+
+            char temp[100];
+            for (size_t i = 0; i < points.size(); ++i) {
+                snprintf(temp, sizeof(temp), "%.3g %.3g", points[i][0],
+                         points[i][1]);
+                strcat(buffer, temp);
+
+                if (i != points.size() - 1) {
+                    strcat(buffer, " ");
+                }
+            }
+
+            if (closed) {
+                strcat(buffer, " Z");
+            }
+        }
+
+        strcat(buffer, R"(" style=")");
+        strcat(buffer, style.Format().c_str());
+        strcat(buffer, R"(" />)");
+
+        return buffer;
+    }
+
+   private:
+    std::vector<std::array<float, 2>> points;
+    bool closed = true;
+    Style style;
+};
+
+struct Triangle : public Polygon {
+    inline Triangle(float x1, float x2, float x3, float y1, float y2, float y3)
+        : Polygon({{x1, y1}, {x2, y2}, {x3, y3}}) {}
 };
